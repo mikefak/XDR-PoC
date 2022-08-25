@@ -1,4 +1,4 @@
-#!/bin/bash
+!/bin/bash
 
 # --------------------------------Disclaimer--------------------------------
 # THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
@@ -39,26 +39,21 @@ function helpmenu() {
 }
 
 function checklist() {
-    #os version, polkit version, account service, gnome control center, ssh installated Cortex XDR Agent Installed, final check
 
     clear 
-
-    echo Checking OS release...
+    echo Checking OS...
     sleep 3
-    #distinguish Ubuntu/Debian or RHEL/CentOS/Fedora
-    os=$(sed -n '3p' /etc/os-release)
-
-    declare -a PrettyNamesApt=("Ubuntu Focal Fossa (development branch)" "Debian testing (\"bullseye\")" "Ubuntu 20.04 LTS")
-    PrettyNamesYum="Red Hat Enterprise Linux 8.0 (Ootpa) CentOS Linux 8"
     
-    declare -a VulnPolkitList=("0.113" "0.105-26" "0.105-26ubuntu1.3" "0.115")
-
-    #pnf=$(grep "PRETTY_NAME" /etc/os-release)
+    #distinguish os
+    os=$(sed -n '3p' /etc/os-release)
     PrettyNameCut=$(hostnamectl | grep "Operating" | awk '{ print substr($0, index($0,$3)) }')
+    
+    echo -e "$PrettyNameCut detected..."
 
+    #polkit version check
     echo Checking polkit version...
     sleep 2
-    VulnPolkitList="0.113 0.105-26 0.105-26ubuntu1.3"; #Load up vulnerable deb version as well to expand list
+    declare -a VulnPolkitList=("0.113" "0.105-26" "0.105-26ubuntu1.3" "0.115")
     PolkitVHost=$(dpkg -l | grep polkit-agent | awk '{print$3}')
     
     echo Searching for required packages...
@@ -67,29 +62,31 @@ function checklist() {
     RequiredPackages="accountsservice ssh gnome-control-center"
     CheckForPacks=$(apt list --installed &>/dev/null | tail -1)
     
-    #check for cortex xdr
+    #cortex xdr check
     echo Searching for the Cortex XDR agent...
     sleep 3
     
     xdrcheck=$(grep cortexuser /etc/passwd)
 
+    #color for output
     yes=$(echo -e "\e[32m+\e[0m")
     no=$(echo -e "\e[31mX\e[0m")
+    
+    #results string
     Results=""
     
     #Check for local privilege to ensure script isn't running as regular user
     uid=$(id -u)
 	if [[ $uid -eq 0 ]]; then
-	    Results+="[$no] The current user has root privileges (PoC will always work). Please reboot and non-root user\n"
+	    Results+="[$no] The current user has root privileges (exploit will always work). Please reboot as a non-root user\n"
 	else
 	    Results+="[$yes] A nonroot user is running the script\n"
 	fi  
 	
-    #Ubuntu/Debian path
     if  [[ $os == "ID=ubuntu" || $os == "ID=debian" ]];
     then
-        #OS Version Check
 
+	#os check
     	for osv in "${PrettyNamesApt[@]}"; do
     	   if [[ $PrettyNameCut == $osv ]]; then
     		Results+="[$yes] The current Operating System $PrettyNameCut ships with a vulnerable version of polkit\n"
@@ -127,7 +124,7 @@ function checklist() {
         sleep 2
         
         #Check if being ran within local ssh instance
-        sshcheck=$(last | grep "logged in")
+        sshcheck=$(last | grep 127.0.0.1 | grep "logged in")
         
         if [[ -z $sshcheck ]]; then
         	Results+="[$no] The script is currently not being ran in an ssh instance\n"
@@ -146,6 +143,8 @@ function checklist() {
         echo
         echo -e $Results
         returning
+    else
+    	echo -e "Unsupported OS: $PrettyNameCut"
     fi
 }
 
