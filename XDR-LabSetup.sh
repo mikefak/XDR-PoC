@@ -144,6 +144,7 @@ function checklist() {
         echo -e $Results
         returning
     else
+    	returning
     	echo -e "Unsupported OS: $PrettyNameCut"
     fi
 }
@@ -259,7 +260,7 @@ while true; do
     echo
     echo PoC ft. CVE-2021-3560
     echo
-    echo -e "1. Help\n2. Initiate Checklist Scan\n3. Install required packages\n4. Guide to initiate exploit\nq. Quit\n"
+    echo -e "1. Help\n2. Initiate Checklist Scan\n3. Install Required Packages\n4. Guide to Initiate Exploit\nq. Quit\n"
     read -p "Please enter an input: " choice
 
     case $choice in
