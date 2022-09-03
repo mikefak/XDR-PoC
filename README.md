@@ -17,3 +17,6 @@ Options:
 
   4. Guide to initiate exploit: Prints guide to initiate exploit based on information by original CVE discoverer and security researcher Kevin Backhouse. Source: https://github.blog/2021-06-10-privilege-escalation-polkit-root-on-linux-with-bug/
 
+# Original Post
+
+https://live.paloaltonetworks.com/t5/cortex-xdr-discussions/cortex-xdr-poc-lab-ft-cve-2021-3560/td-p/513649
