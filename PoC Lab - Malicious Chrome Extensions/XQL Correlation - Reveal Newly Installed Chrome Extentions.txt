@@ -1,0 +1,21 @@
+config case_sensitive = true | 
+
+preset = xdr_file
+
+| filter agent_os_type = AGENT_OS_WINDOWS 
+
+| filter event_sub_type = FILE_CREATE_NEW
+
+| filter causality_actor_process_image_name = "chrome.exe"
+
+| filter action_file_path contains "\Webstore Downloads\"
+
+| filter action_file_name not contains "Zone.Identifier"
+
+| alter action_file_name = split(action_file_name, "_")
+
+| arrayexpand action_file_name 
+
+| filter action_file_name not contains "crx"
+
+| fields _time as Time, agent_hostname as Hostname, agent_ip_addresses as IPv4, actor_effective_username as User, action_file_name as extensionID
